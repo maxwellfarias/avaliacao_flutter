@@ -101,7 +101,9 @@ class _TransacaoFormState extends State<TransacaoForm> {
                 labelText: "Valor",
                 prefixText: "R\$ ",
               ),
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
               validator: (value) {
                 final valor = _parseValor(value);
                 if (valor == null || valor <= 0) {
