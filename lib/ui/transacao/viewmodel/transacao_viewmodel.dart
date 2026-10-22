@@ -2,7 +2,7 @@ import 'package:avaliacao_flutter/model/transacao.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
-class TransacoesViewModel extends ChangeNotifier{
+class TransacoesViewModel {
   // Lista que armazena todas as transações na memória
   final List<Transacao> _transacoes = [];
 
@@ -20,7 +20,6 @@ class TransacoesViewModel extends ChangeNotifier{
         data: data,
       );
       _transacoes.add(transacao);
-      notifyListeners();
     } catch (e, s) {
       debugPrint("Erro ao cadastrar transação: $e");
       debugPrint("Stack trace: $s");
