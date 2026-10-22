@@ -2,7 +2,7 @@ import 'package:avaliacao_flutter/model/transacao.dart';
 import 'package:flutter/foundation.dart';
 import 'package:uuid/uuid.dart';
 
-class TransacoesViewModel {
+class TransacoesViewModel extends ChangeNotifier {
   // Lista que armazena todas as transações na memória
   final List<Transacao> _transacoes = [];
 
@@ -20,6 +20,7 @@ class TransacoesViewModel {
         data: data,
       );
       _transacoes.add(transacao);
+      notifyListeners();
     } catch (e, s) {
       debugPrint("Erro ao cadastrar transação: $e");
       debugPrint("Stack trace: $s");
@@ -38,6 +39,7 @@ class TransacoesViewModel {
         tipo: TipoTransacao.fromString(novoTipo),
         data: DateTime.now(),
       ); 
+      notifyListeners();
     } catch (e,s){
       debugPrint("Erro ao cadastrar transação: $e");
       debugPrint("Stack trace: $s");
@@ -51,6 +53,7 @@ class TransacoesViewModel {
       final index = _transacoes.indexWhere((item)=> item.id == id);
       if(index == -1) throw Exception("Item não encontrado");
       _transacoes.removeAt(index); 
+      notifyListeners();
     } catch (e,s){
       debugPrint("Erro ao cadastrar transação: $e");
       debugPrint("Stack trace: $s");
