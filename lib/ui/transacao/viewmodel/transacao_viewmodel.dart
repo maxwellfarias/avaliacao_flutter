@@ -1,55 +1,81 @@
 import 'package:avaliacao_flutter/model/transacao.dart';
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 
 class TransacoesViewModel extends ChangeNotifier{
   // Lista que armazena todas as transações na memória
-  final List<Transacao> transacoes = [];
-
-  // Variável para controle de IDs sequenciais automáticos
-  int proximoId = 1;
+  final List<Transacao> _transacoes = [];
 
   // 1. [R] Listagem Completa
-  List<Transacao> listarTodas() {
-    // OBJETIVO: Entregar todas as transações cadastradas até o momento.
-    return [];
-  }
+  List<Transacao> get transacoes => List.unmodifiable(_transacoes);
 
   // 2. [C] Cadastro de Transação
-  void cadastrar(String descricao, double valor, String tipo, DateTime data) {
-    // OBJETIVO: Criar uma nova Transacao e guardá-la na lista interna.
-    //
-    // REGRAS OBRIGATÓRIAS:
-    // - O valor não pode ser zero nem negativo.
-    // - A descrição não pode estar em branco.
-    // - O tipo deve ser padronizado e aceitar apenas "entrada" ou "saida".
-    // - O ID deve ser gerado automaticamente sem repetir.
+  void cadastrar({required String descricao, required double valor, required String tipo, required DateTime data}) {
+    try{
+      final transacao = Transacao(
+        id: const Uuid().v4(),
+        descricao: descricao,
+        valor: valor,
+        tipo: TipoTransacao.fromString(tipo),
+        data: data,
+      );
+      _transacoes.add(transacao);
+      notifyListeners();
+    } catch (e, s) {
+      debugPrint("Erro ao cadastrar transação: $e");
+      debugPrint("Stack trace: $s");
+    }
   }
 
   // 3. [U] Atualização de Transação
-  void atualizar(int id, String novaDescricao, double novoValor, String novoTipo) {
-    // OBJETIVO: Localizar a transação correspondente ao ID informado e atualizar seus dados.
-    // DESAFIO: Como encontrar um item específico dentro da lista para alterar suas propriedades?
+  void atualizar({required String id, required String novaDescricao, required double novoValor, required String novoTipo}) {
+    try{
+      final index = _transacoes.indexWhere((item)=> item.id == id);
+      if(index == -1) throw Exception("Item não encontrado");
+      _transacoes[index] = Transacao(
+        id: _transacoes[index].id,
+        descricao: novaDescricao,
+        valor: novoValor,
+        tipo: TipoTransacao.fromString(novoTipo),
+        data: DateTime.now(),
+      ); 
+    } catch (e,s){
+      debugPrint("Erro ao cadastrar transação: $e");
+      debugPrint("Stack trace: $s");
+
+    }
   }
 
   // 4. [D] Remoção de Transação
-  void remover(int id) {
-    // OBJETIVO: Remover da lista a transação correspondente ao ID recebido.
+  void remover(String id) {
+    try{
+      final index = _transacoes.indexWhere((item)=> item.id == id);
+      if(index == -1) throw Exception("Item não encontrado");
+      _transacoes.removeAt(index); 
+    } catch (e,s){
+      debugPrint("Erro ao cadastrar transação: $e");
+      debugPrint("Stack trace: $s");
+
+    }
   }
 
   // 5. Cálculos Financeiros (Totais e Saldo)
   double calcularTotalEntradas() {
+
     // OBJETIVO: Retornar a soma de todas as transações do tipo "entrada".
     // DESAFIO: Como percorrer a lista acumulando apenas os valores que atendem a esse critério?
-    return 0.0;
+    return _transacoes.where((item) => item.tipo == TipoTransacao.entrada).toList()
+        .fold<double>(0,(previousValue, element) => previousValue + element.valor);
   }
 
   double calcularTotalSaidas() {
     // OBJETIVO: Retornar a soma de todas as transações do tipo "saida".
-    return 0.0;
+    return _transacoes.where((item) => item.tipo == TipoTransacao.saida).toList()
+        .fold<double>(0,(previousValue, element) => previousValue + element.valor);;
   }
 
   double calcularSaldo() {
     // OBJETIVO: Retornar a diferença matemática entre o total de entradas e o total de saídas.
-    return 0.0;
+    return calcularTotalEntradas() - calcularTotalSaidas();
   }
 }
